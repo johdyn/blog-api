@@ -1,6 +1,8 @@
 const express = require("express");
 const db = require("./lib/db");
 const cors = require("cors");
+const mongoose = require("mongoose");
+const Post = require("./models/post");
 
 /*
   We create an express app calling
@@ -32,7 +34,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/posts", (req, res) => {
-  db.findAll().then(posts => {
+  Post.find().then(posts => {
   res.status(200);
   res.json(posts);
   }).catch(error => {
@@ -45,7 +47,7 @@ app.get("/posts", (req, res) => {
 });
 
 app.post("/posts", (req, res) => {
-db.insert(req.body)
+Post.create(req.body)
 .then(newPost => {
   res.status(200);
   res.json(newPost);
@@ -60,11 +62,9 @@ db.insert(req.body)
 });
 
 app.get("/posts/:id", (req, res) => {
- let id = req.params.id;
-//  res.json(idVariable);
-//   console.log(idVariable);
-  db.findById(id)
-  .then(foundPost => {
+ let { id } = req.params;
+  // db.findById(id)
+  Post.findById(id).then(foundPost => {
     res.json(foundPost);
     res.status(200);
     })
@@ -77,13 +77,11 @@ app.get("/posts/:id", (req, res) => {
 });
 
 app.patch("/posts/:id", (req, res) => {
-  let idVar = req.params.id;
-  db.updateById(idVar, req.body)
-  .then(foundPost => {
-    res.json(foundPost);
+  let { id } = req.params;
+  Post.findByIdAndUpdate(id, req.body, { new: true }).then(updatePost => {
+    res.json(updatePost);
     res.status(200);
-    })
-    .catch((error) => {
+    }).catch((error) => {
       res.status(500);
       res.json({
         error: "Internal server error",
@@ -92,12 +90,14 @@ app.patch("/posts/:id", (req, res) => {
 });
 
 app.delete("/posts/:id", (req, res) => {
-  let idVar = req.params.id;
-  db.deleteById(idVar).then((post) => {
+  const { id } = req.params;
+  Post.findByIdAndDelete(id)
+  .then((post) => {
     res.status(204);
     res.json(post);
+
     console.log(`Deleted post number ${idVar} `);
-  }) .catch((error) => {
+  }).catch((error) => {
     res.status(500);
     res.json({
       error: "Internal server error",
@@ -106,16 +106,7 @@ app.delete("/posts/:id", (req, res) => {
 });
   
 
-//   // .then(newPost => {
-    
-    
-//   //   })
-//   //   .catch((error) => {
-//   //     res.status(500);
-//   //     res.json({
-//   //       error: "Internal server error",
-//   //     });  
-// });
+
 
 /*
 
@@ -123,6 +114,13 @@ app.delete("/posts/:id", (req, res) => {
 We have to start the server. We make it listen on the port 4000
 
 */
+
+mongoose.connect("mongodb://localhost/blogs", {useNewUrlParser: true, useUnifiedTopology: true});
+
+const mongodb = mongoose.connection;
+
+mongodb.on("open", () => {
 app.listen(4000, () => {
   console.log("Listening on http://localhost:4000");
+});
 });
