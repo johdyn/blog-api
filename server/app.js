@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const db = require("./lib/db");
 const cors = require("cors");
@@ -115,12 +116,19 @@ We have to start the server. We make it listen on the port 4000
 
 */
 
+const { PORT } = process.env;
+
+/*
+With process.env we can access all environmental variables set in the system
+The envrionment where the code runs, so e.g. local machine or Heroku
+*/
+
 mongoose.connect("mongodb://localhost/blogs", {useNewUrlParser: true, useUnifiedTopology: true});
 
 const mongodb = mongoose.connection;
 
 mongodb.on("open", () => {
-app.listen(4000, () => {
-  console.log("Listening on http://localhost:4000");
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
 });
 });
