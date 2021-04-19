@@ -116,14 +116,15 @@ We have to start the server. We make it listen on the port 4000
 
 */
 
-const { PORT } = process.env;
+const { PORT, MONGO_URL } = process.env;
 
 /*
 With process.env we can access all environmental variables set in the system
 The envrionment where the code runs, so e.g. local machine or Heroku
+Underneath we are connecting to the env var MONGO_URL
 */
 
-mongoose.connect("mongodb://localhost/blogs", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(MONGO_URL, {useNewUrlParser: true, useUnifiedTopology: true});
 
 const mongodb = mongoose.connection;
 
